@@ -1,95 +1,185 @@
-# AI Orbit - AI Companies Module
+# AI Orbit — AI Companies Module
 
-A full-stack implementation of the AI Companies module for the AI Orbit ecosystem.
+A full-stack, production-ready **AI Companies** discovery module built as part of the AI Orbit internship assignment.
+
+> Discover, explore, and filter the companies shaping the future of artificial intelligence.
+
+---
+
+## Live Demo
+
+🔗 **[Coming soon — deployed on Vercel]**
+
+---
 
 ## Features
 
-- **Discover AI Companies**: Browse a curated list of AI companies shaping the future.
-- **Search & Filter**: Search by name, description, categories, and technologies.
-- **Detailed Profiles**: View in-depth profiles including company focus, technologies, and related companies.
-- **Admin Interface**: Add, edit, and delete companies easily through a secure admin dashboard.
-- **Responsive Design**: Polished UI that works flawlessly on mobile, tablet, and desktop.
-- **Premium Aesthetics**: Dark theme, minimal design consistent with AI Orbit brand guidelines.
+- **Listing Page** — Grid & list view toggle, debounced search, category filter, pagination (12 per page)
+- **Detail Page** — Full company profile with description, tech stack, categories, social links, and contextual "Related Companies"
+- **Logo Fallback** — Smart logo loading with first-letter fallback if image fails
+- **Dark Design** — Premium dark UI matching AI Orbit's aesthetic
+- **60 Curated Companies** — OpenAI, Anthropic, NVIDIA, Mistral, Waymo, and more — all with logos, links, and metadata
+- **REST API** — `/api/companies` with search, filter, sort, and pagination support
+
+---
 
 ## Tech Stack
 
-- **Framework**: Next.js (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Database ORM**: Prisma
-- **Database**: SQLite (Configured for easy local setup, easily swappable to PostgreSQL)
-- **Icons**: Lucide React
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS |
+| Database | PostgreSQL (Neon) via Prisma ORM |
+| Deployment | Vercel |
 
-## Project Structure
+---
 
-- `/src/app/companies` - Public listing and detail pages
-- `/src/app/admin/companies` - Admin management interface
-- `/src/app/api/companies` - RESTful API routes
-- `/src/components` - Reusable UI components
-- `/src/lib` - Utility functions and database client
-- `/prisma` - Database schema and seed data
+## Local Development
 
-## Local Setup
-
-### 1. Install dependencies
+### 1. Clone the repo
 
 ```bash
+git clone https://github.com/patelmanan112/ai-orbit.git
+cd ai-orbit
 npm install
 ```
 
-### 2. Set up the database
+### 2. Set up environment variables
 
-Generate Prisma client and push the schema to SQLite:
+Create a `.env` file in the project root:
 
-```bash
-npx prisma db push
+```env
+DATABASE_URL="postgresql://..."
+DIRECT_URL="postgresql://..."
 ```
 
-### 3. Seed initial data
+> Get these from [Neon](https://neon.tech) — create a free project and copy the connection strings.
 
-Populate the database with sample AI companies:
+### 3. Initialize the database
 
 ```bash
-npx prisma db seed
+npx prisma migrate dev --name init
 ```
 
-### 4. Run the development server
+### 4. Seed the companies data
+
+```bash
+npx tsx prisma/seedCustom.ts
+```
+
+### 5. Run the dev server
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-## API Documentation
+---
 
-### `GET /api/companies`
-Fetches a list of companies. Supports pagination and filtering.
-- Query Params:
-  - `search`: Search query string
-  - `category`: Filter by category
-  - `industry`: Filter by industry
-  - `location`: Filter by location
-  - `page`: Page number (default: 1)
-  - `limit`: Items per page (default: 12)
+## Deployment on Vercel
 
-### `GET /api/companies/:id`
-Fetches a single company by its ID or slug.
+### Step 1 — Create a Neon Database
 
-### `POST /api/companies`
-Creates a new company.
+1. Go to [neon.tech](https://neon.tech) and sign up (free)
+2. Create a new project
+3. Go to **Dashboard → Connection Details**
+4. Copy both:
+   - **Connection string** (pooled) → this is your `DATABASE_URL`
+   - **Connection string** (direct / non-pooled) → this is your `DIRECT_URL`
 
-### `PATCH /api/companies/:id`
-Updates an existing company.
+### Step 2 — Deploy to Vercel
 
-### `DELETE /api/companies/:id`
-Deletes a company.
+1. Go to [vercel.com](https://vercel.com) → **Add New Project**
+2. Import your GitHub repo: `patelmanan112/ai-orbit`
+3. Add Environment Variables:
 
-## Production Build
+| Key | Value |
+|-----|-------|
+| `DATABASE_URL` | Your Neon pooled connection string |
+| `DIRECT_URL` | Your Neon direct connection string |
 
-To build the application for production:
+4. Click **Deploy**
+
+### Step 3 — Run migrations on Neon
+
+After deploying, run this locally with your Neon `DATABASE_URL` set in `.env`:
 
 ```bash
-npm run build
-npm start
+npx prisma migrate deploy
+npx tsx prisma/seedCustom.ts
 ```
+
+---
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── page.tsx                  # Redirects to /companies
+│   ├── layout.tsx                # Root layout with nav
+│   ├── globals.css
+│   ├── companies/
+│   │   ├── page.tsx              # Listing page
+│   │   └── [slug]/
+│   │       └── page.tsx          # Detail page
+│   └── api/
+│       └── companies/
+│           ├── route.ts          # GET (list) + POST
+│           └── [id]/
+│               └── route.ts      # GET + PATCH + DELETE
+├── components/
+│   └── companies/
+│       ├── CompanyCard.tsx       # Card with overlay link pattern
+│       └── CompanyLogo.tsx       # Logo with onError fallback
+└── lib/
+    └── db.ts                     # Prisma singleton client
+
+prisma/
+├── schema.prisma                 # AiCompany model
+└── seedCustom.ts                 # 60 curated AI companies
+```
+
+---
+
+## API Reference
+
+### `GET /api/companies`
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `search` | string | Search name, description, industry |
+| `category` | string | Filter by category |
+| `industry` | string | Filter by industry |
+| `sort` | string | `featured` \| `newest` \| `a-z` \| `z-a` |
+| `page` | number | Page number (default: 1) |
+| `limit` | number | Results per page (default: 12) |
+
+**Response:**
+```json
+{
+  "companies": [...],
+  "pagination": {
+    "total": 60,
+    "page": 1,
+    "limit": 12,
+    "totalPages": 5
+  }
+}
+```
+
+---
+
+## Assignment Context
+
+Built for the **AI Orbit Full Stack Internship Assignment**.
+
+**Module:** AI Companies  
+**Scope:** Listing page, detail page, REST API, data seeding  
+**Design:** Dark, premium, minimal — consistent with AI Orbit's brand
+
+---
+
+*Built by Manan Patel*
