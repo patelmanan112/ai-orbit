@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Orbit - AI Companies Module
 
-## Getting Started
+A full-stack implementation of the AI Companies module for the AI Orbit ecosystem.
 
-First, run the development server:
+## Features
+
+- **Discover AI Companies**: Browse a curated list of AI companies shaping the future.
+- **Search & Filter**: Search by name, description, categories, and technologies.
+- **Detailed Profiles**: View in-depth profiles including company focus, technologies, and related companies.
+- **Admin Interface**: Add, edit, and delete companies easily through a secure admin dashboard.
+- **Responsive Design**: Polished UI that works flawlessly on mobile, tablet, and desktop.
+- **Premium Aesthetics**: Dark theme, minimal design consistent with AI Orbit brand guidelines.
+
+## Tech Stack
+
+- **Framework**: Next.js (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Database ORM**: Prisma
+- **Database**: SQLite (Configured for easy local setup, easily swappable to PostgreSQL)
+- **Icons**: Lucide React
+
+## Project Structure
+
+- `/src/app/companies` - Public listing and detail pages
+- `/src/app/admin/companies` - Admin management interface
+- `/src/app/api/companies` - RESTful API routes
+- `/src/components` - Reusable UI components
+- `/src/lib` - Utility functions and database client
+- `/prisma` - Database schema and seed data
+
+## Local Setup
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Set up the database
+
+Generate Prisma client and push the schema to SQLite:
+
+```bash
+npx prisma db push
+```
+
+### 3. Seed initial data
+
+Populate the database with sample AI companies:
+
+```bash
+npx prisma db seed
+```
+
+### 4. Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## API Documentation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### `GET /api/companies`
+Fetches a list of companies. Supports pagination and filtering.
+- Query Params:
+  - `search`: Search query string
+  - `category`: Filter by category
+  - `industry`: Filter by industry
+  - `location`: Filter by location
+  - `page`: Page number (default: 1)
+  - `limit`: Items per page (default: 12)
 
-## Learn More
+### `GET /api/companies/:id`
+Fetches a single company by its ID or slug.
 
-To learn more about Next.js, take a look at the following resources:
+### `POST /api/companies`
+Creates a new company.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### `PATCH /api/companies/:id`
+Updates an existing company.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### `DELETE /api/companies/:id`
+Deletes a company.
 
-## Deploy on Vercel
+## Production Build
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+To build the application for production:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build
+npm start
+```
